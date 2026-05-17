@@ -106,21 +106,22 @@ class _ContactPageState extends State<ContactPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('/mailer/contact.php'),
+        Uri.parse('https://formspree.io/f/mlgvrajg'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'name': _name,
           'email': _email,
-          'subject': _subject,
+          '_subject': _subject, // Formspree uses _subject as the email subject line
           'message': _message,
-          'hp': '',
         },
       );
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       setState(() {
-        _state = data['success'] == true ? _SubmitState.success : _SubmitState.error;
-        _statusMessage = data['message']?.toString() ?? 'Something went wrong.';
+        _state = data['ok'] == true ? _SubmitState.success : _SubmitState.error;
+        _statusMessage = data['ok'] == true
+            ? 'Your message was sent successfully!'
+            : data['error']?.toString() ?? 'Something went wrong.';
       });
     } catch (_) {
       setState(() {
@@ -143,18 +144,6 @@ class _ContactPageState extends State<ContactPage> {
               div(classes: 'form-banner banner-success', [.text(_statusMessage)])
             else if (_state == _SubmitState.error)
               div(classes: 'form-banner banner-error', [.text(_statusMessage)]),
-
-            // Honeypot — CSS-hidden field, not display:none (bots fill it, humans don't see it)
-            div(
-              styles: Styles(raw: {'position': 'absolute', 'left': '-9999px', 'opacity': '0'}),
-              [
-                input<String>(
-                  name: 'hp',
-                  type: InputType.text,
-                  value: '',
-                ),
-              ],
-            ),
 
             div(classes: 'form-group', [
               label([.text('Name')], htmlFor: 'contact-name'),
