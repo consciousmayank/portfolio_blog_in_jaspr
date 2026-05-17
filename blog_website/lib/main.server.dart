@@ -4,16 +4,32 @@ import 'package:jaspr/server.dart';
 
 import 'app.dart';
 import 'main.server.options.dart';
-import 'styles/theme.dart';
 
 void main() {
   Jaspr.initializeApp(options: defaultServerOptions);
 
   runApp(Document(
-    title: 'Mayank Joshi — Portfolio',
-    styles: [
-      ...designSystemStyles,
+    title: 'Mayank Joshi — Senior Flutter Developer · Mobile Architect',
+    head: [
+      Component.element(tag: 'link', attributes: {
+        'rel': 'preconnect',
+        'href': 'https://fonts.googleapis.com',
+      }),
+      Component.element(tag: 'link', attributes: {
+        'rel': 'preconnect',
+        'href': 'https://fonts.gstatic.com',
+        'crossorigin': '',
+      }),
+      Component.element(tag: 'link', attributes: {
+        'rel': 'stylesheet',
+        'href':
+            'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500;600&display=swap',
+      }),
+      Component.element(tag: 'link', attributes: {
+        'rel': 'stylesheet',
+        'href': '/styles.css',
+      }),
     ],
-    body: App(),
+    body: const App(),
   ));
 }

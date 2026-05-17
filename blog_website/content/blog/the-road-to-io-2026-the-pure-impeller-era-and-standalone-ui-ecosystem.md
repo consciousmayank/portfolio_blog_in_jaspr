@@ -33,9 +33,7 @@ Pre-conference schedule leaks have essentially confirmed that Google will be hig
 
 ## Senior Dev's Take
 
-*"Looking back at the past seven days, the biggest takeaway is that Flutter has aggressively outgrown its identity as just a 'mobile framework.' By standardising on **MCP** and open AI protocols, the team has effectively future-proofed our codebases for the next decade of development.
-
-If you haven't checked your existing project pipelines yet, take an hour this Sunday evening to prepare. Run a dry run using **Wasm compilation** on your web modules and test your pluggable modules against the new standalone `material_ui` package path. The pace of app architecture is going to change permanently once the Google I/O keynote drops on Tuesday, and having your environment completely clean is the best advantage you can give yourself."*
+"*Looking back at the past seven days, the biggest takeaway is that Flutter has aggressively outgrown its identity as just a 'mobile framework.' By standardising on **MCP** and open AI protocols, the team has effectively future-proofed our codebases for the next decade of development. If you haven't checked your existing project pipelines yet, take an hour this Sunday evening to prepare. Run a dry run using **Wasm compilation** on your web modules and test your pluggable modules against the new standalone `material_ui` package path. The pace of app architecture is going to change permanently once the Google I/O keynote drops on Tuesday, and having your environment completely clean is the best advantage you can give yourself*."
 
 ----------
 

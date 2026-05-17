@@ -6,7 +6,10 @@
 
 import 'package:jaspr/client.dart';
 
-import 'package:blog_website/app.dart' deferred as _app;
+import 'package:blog_website/components/hero_typewriter.dart'
+    deferred as _hero_typewriter;
+import 'package:blog_website/components/theme_toggle.dart'
+    deferred as _theme_toggle;
 
 /// Default [ClientOptions] for use with your Jaspr project.
 ///
@@ -25,5 +28,14 @@ import 'package:blog_website/app.dart' deferred as _app;
 /// }
 /// ```
 ClientOptions get defaultClientOptions => ClientOptions(
-  clients: {'app': ClientLoader((p) => _app.App(), loader: _app.loadLibrary)},
+  clients: {
+    'hero_typewriter': ClientLoader(
+      (p) => _hero_typewriter.HeroTypewriter(),
+      loader: _hero_typewriter.loadLibrary,
+    ),
+    'theme_toggle': ClientLoader(
+      (p) => _theme_toggle.ThemeToggle(),
+      loader: _theme_toggle.loadLibrary,
+    ),
+  },
 );
