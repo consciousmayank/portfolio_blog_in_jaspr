@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:skills.sh)",
+      "Bash(npx skills *)",
+      "Bash(dart --version)",
+      "Bash(dart pub *)",
+      "Bash(jaspr create *)",
+      "Bash(python3 -c \"import json,sys; deps=json.load\\(sys.stdin\\); [print\\(p['name'], p['version']\\) for p in deps.get\\('packages',[]\\) if p['name'] in \\('jaspr_content','jaspr_router','http','jaspr'\\)]\")",
+      "Bash(find ~/.pub-cache/hosted/pub.dev/jaspr_content-0.5.2 -name \"*.dart\" | head -20 && echo \"---\" && ls ~/.pub-cache/hosted/pub.dev/jaspr_content-0.5.2/lib/)",
+      "Read(//Users/myke/.pub-cache/hosted/pub.dev/jaspr_content-0.5.2/**)",
+      "Read(//Users/myke/.pub-cache/hosted/pub.dev/jaspr_content-0.5.2/lib/**)",
+      "Bash(ls ~/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/src/dom/)",
+      "Read(//Users/myke/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/src/dom/**)",
+      "Bash(grep -r \"innerHTML\\\\|innerHtml\\\\|rawHtml\\\\|dangerouslySet\\\\|raw.*html\\\\|DomComponent\" ~/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/src/dom/ 2>/dev/null | grep -v \".dart_tool\" | head -20)",
+      "Bash(grep -n \"RawText\\\\|rawHtml\\\\|raw\\(\" ~/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/src/dom/html/html.dart | head -20 && echo \"---\" && grep -rn \"rawHtml\\\\|RawText\\\\|raw \" ~/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/dom.dart 2>/dev/null | head -10)",
+      "Read(//Users/myke/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/**)",
+      "Bash(python3 -c \"import json,sys; deps=json.load\\(sys.stdin\\); [print\\(p['name'], p['version']\\) for p in deps.get\\('packages',[]\\) if p['name'] in \\('web','markdown'\\)]\")",
+      "Bash(sed -n '239,300p' ~/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/src/dom/html/forms.dart)",
+      "Bash(sed -n '397,430p' ~/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/src/dom/html/forms.dart)",
+      "Bash(sed -n '963,1010p' ~/.pub-cache/hosted/pub.dev/jaspr-0.23.1/lib/src/dom/html/forms.dart)",
+      "Bash(dart analyze *)",
+      "Bash(grep -n \"styles_ordering\\\\|StylesOrdering\\\\|sort.*properties\\\\|properties.*order\" ~/.pub-cache/hosted/pub.dev/jaspr_lints-*/lib/ -r 2>/dev/null | head -5 && ls ~/.pub-cache/hosted/pub.dev/ | grep jaspr_lints)",
+      "Read(//Users/myke/.pub-cache/hosted/pub.dev/**)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git init *)",
+      "Bash(brew install *)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(gh repo *)",
+      "Bash(git -C /Users/myke/dev/live_projects/portfolio_blog status --short)",
+      "Bash(git -C /Users/myke/dev/live_projects/portfolio_blog remote add origin https://github.com/consciousmayank/portfolio_blog_in_jaspr.git)",
+      "Bash(git -C /Users/myke/dev/live_projects/portfolio_blog push -u origin main)",
+      "Bash(git -C /Users/myke/dev/live_projects/portfolio_blog add .github/workflows/deploy.yml blog_website/web/CNAME DEPLOY.md)",
+      "Bash(git -C /Users/myke/dev/live_projects/portfolio_blog commit -m ' *)",
+      "Bash(git -C /Users/myke/dev/live_projects/portfolio_blog push)",
+      "Bash(git -C /Users/myke/dev/live_projects/portfolio_blog log --oneline)",
+      "Bash(gh run *)",
+      "Bash(git -C /Users/myke/dev/live_projects/portfolio_blog add .github/workflows/deploy.yml)"
+    ]
+  }
+}

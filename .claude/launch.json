@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Jaspr Dev Server",
+      "runtimeExecutable": "jaspr",
+      "runtimeArgs": ["serve"],
+      "cwd": "blog_website",
+      "port": 8080
+    }
+  ]
+}

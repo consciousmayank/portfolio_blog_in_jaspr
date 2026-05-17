@@ -1,0 +1,1 @@
+# dart run tool/publish_post.dart
