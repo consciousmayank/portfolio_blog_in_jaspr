@@ -1,0 +1,17 @@
+# Dart / Pub
+.dart_tool/
+.packages
+pubspec.lock
+
+# Build output
+blog_website/build/
+blog_website/.dart_tool/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

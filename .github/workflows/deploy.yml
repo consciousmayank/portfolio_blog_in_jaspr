@@ -1,0 +1,39 @@
+name: Build and Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Dart dependencies
+        working-directory: blog_website
+        run: dart pub get
+
+      - name: Generate blog_posts.dart from Markdown files
+        working-directory: blog_website
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Jaspr static site
+        working-directory: blog_website
+        run: dart run jaspr build --sitemap-domain https://mayankjoshi.dev
+
+      - name: Deploy to Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: blog_website/build/jaspr/
+          server-dir: public_html/
+          dangerous-clean-slate: false

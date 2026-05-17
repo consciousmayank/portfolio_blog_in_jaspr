@@ -1,0 +1,7 @@
+Options -Indexes
+
+# Block all GET and HEAD requests — only POST is valid for this mailer
+<Limit GET HEAD>
+  Order deny,allow
+  Deny from all
+</Limit>

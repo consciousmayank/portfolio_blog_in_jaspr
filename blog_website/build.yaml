@@ -1,0 +1,18 @@
+targets:
+  $default:
+    # $package$ covers lib/**; content/** lets the builder read .md files;
+    # lib/$lib$ is the virtual sentinel required by aggregating builders.
+    sources:
+      - $package$
+      - content/**
+      - "lib/$lib$"
+
+builders:
+  blog_posts:
+    import: "package:blog_website/src/blog_posts_builder.dart"
+    builder_factories: ["blogPostsBuilder"]
+    # $lib$ sentinel = aggregating builder: runs once per package, outputs one file
+    build_extensions: {r"$lib$": ["data/blog_posts.dart"]}
+    auto_apply: root_package
+    build_to: source
+    required_inputs: [".md"]
