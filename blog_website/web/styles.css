@@ -964,3 +964,270 @@ section { padding: var(--section-y, 110px) 0; position: relative; }
 @media (max-width: 600px) {
   .hero-right { grid-template-columns: 1fr; }
 }
+
+/* ================================================================
+   THEMES — Extended Palette
+   ================================================================ */
+
+/* ── Theme: glass (glassmorphism) ──────────────────────────────── */
+[data-theme="glass"] {
+  --bg: oklch(13% 0.06 278);
+  --bg-2: oklch(18% 0.07 282);
+  --bg-3: oklch(23% 0.08 286);
+  --ink: oklch(96% 0.005 280);
+  --ink-2: oklch(82% 0.01 280);
+  --muted: oklch(65% 0.018 275);
+  --line: oklch(75% 0.06 295 / 0.22);
+  --accent: oklch(82% 0.22 340);
+  --accent-soft: oklch(82% 0.22 340 / 0.15);
+  --shadow: 0 0 0 1px oklch(80% 0.08 295 / 0.14),
+            0 16px 48px oklch(6% 0.04 280 / 0.55),
+            0 0 40px oklch(70% 0.18 340 / 0.06);
+  color-scheme: dark;
+}
+
+[data-theme="glass"] body {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 40%, oklch(40% 0.2 295 / 0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 50% at 80% 20%, oklch(45% 0.2 345 / 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 60% 85%, oklch(38% 0.18 255 / 0.12) 0%, transparent 55%),
+    oklch(13% 0.06 278);
+  background-attachment: fixed;
+}
+
+[data-theme="glass"] body::before { opacity: 0; }
+
+[data-theme="glass"] .card {
+  background: oklch(22% 0.06 282 / 0.35);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-color: oklch(80% 0.1 295 / 0.18);
+  border-radius: 16px;
+}
+
+[data-theme="glass"] .hero-card {
+  background: oklch(22% 0.06 282 / 0.3);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-color: oklch(80% 0.1 295 / 0.16);
+  border-radius: 16px;
+}
+
+[data-theme="glass"] .nav {
+  background: oklch(14% 0.055 278 / 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom-color: oklch(75% 0.08 295 / 0.14);
+}
+
+[data-theme="glass"] .theme-panel {
+  background: oklch(18% 0.07 282 / 0.75);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-color: oklch(75% 0.06 295 / 0.18);
+}
+
+/* ── Theme: neon (cyberpunk) ───────────────────────────────────── */
+[data-theme="neon"] {
+  --bg: oklch(8% 0.015 275);
+  --bg-2: oklch(12% 0.022 272);
+  --bg-3: oklch(16% 0.028 272);
+  --ink: oklch(88% 0.06 148);
+  --ink-2: oklch(72% 0.05 148);
+  --muted: oklch(52% 0.03 272);
+  --line: oklch(42% 0.18 332 / 0.4);
+  --accent: oklch(75% 0.28 332);
+  --accent-soft: oklch(75% 0.28 332 / 0.12);
+  --shadow: 0 0 0 1px oklch(45% 0.18 332 / 0.35),
+            0 0 24px oklch(65% 0.25 332 / 0.12);
+  color-scheme: dark;
+}
+
+[data-theme="neon"] body {
+  background:
+    linear-gradient(135deg, oklch(12% 0.04 332 / 0.18) 0%, transparent 35%),
+    linear-gradient(225deg, oklch(12% 0.04 148 / 0.14) 0%, transparent 35%),
+    oklch(8% 0.015 275);
+  background-attachment: fixed;
+}
+
+[data-theme="neon"] body::before { opacity: 0; }
+[data-theme="neon"] .card { border-radius: 4px; border-color: oklch(42% 0.18 332 / 0.38); }
+[data-theme="neon"] .hero-card { border-radius: 4px; border-color: oklch(42% 0.18 332 / 0.38); }
+[data-theme="neon"] .nav { border-bottom-color: oklch(42% 0.18 332 / 0.4); }
+[data-theme="neon"] .nav-brand .glyph {
+  background: var(--accent); color: oklch(8% 0.015 275);
+  font-family: var(--f-mono); font-size: 13px; border-radius: 2px;
+}
+[data-theme="neon"] .serif { font-family: var(--f-mono); font-weight: 400; }
+[data-theme="neon"] .hero-name {
+  font-family: var(--f-mono);
+  font-size: clamp(36px, 7vw, 110px);
+  letter-spacing: -0.04em;
+}
+[data-theme="neon"] .hero-name::before { content: "> "; color: var(--accent); }
+[data-theme="neon"] .hero-name .it { font-style: normal; color: var(--accent); }
+[data-theme="neon"] .btn { border-radius: 2px; font-family: var(--f-mono); }
+[data-theme="neon"] .pill { border-radius: 2px; }
+
+/* ── Theme: minimal (monochrome) ───────────────────────────────── */
+[data-theme="minimal"] {
+  --bg: oklch(99% 0 0);
+  --bg-2: oklch(96% 0 0);
+  --bg-3: oklch(92% 0 0);
+  --ink: oklch(8% 0 0);
+  --ink-2: oklch(24% 0 0);
+  --muted: oklch(52% 0 0);
+  --line: oklch(82% 0 0);
+  --accent: oklch(14% 0 0);
+  --accent-soft: oklch(14% 0 0 / 0.07);
+  --shadow: 0 1px 0 oklch(86% 0 0), 0 6px 20px oklch(50% 0 0 / 0.05);
+  color-scheme: light;
+}
+
+[data-theme="minimal"] body::before { opacity: 0; }
+[data-theme="minimal"] .card { border-radius: 0; border-color: oklch(84% 0 0); }
+[data-theme="minimal"] .hero-card { border-radius: 0; border-color: oklch(84% 0 0); }
+[data-theme="minimal"] .nav {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: oklch(99% 0 0);
+  border-bottom-color: oklch(82% 0 0);
+}
+[data-theme="minimal"] .btn { border-radius: 0; }
+[data-theme="minimal"] .pill { border-radius: 0; }
+[data-theme="minimal"] .nav-links a { border-radius: 0; }
+
+/* ── Theme: aurora (night sky) ─────────────────────────────────── */
+[data-theme="aurora"] {
+  --bg: oklch(11% 0.025 200);
+  --bg-2: oklch(15% 0.034 208);
+  --bg-3: oklch(19% 0.04 216);
+  --ink: oklch(94% 0.008 190);
+  --ink-2: oklch(78% 0.012 190);
+  --muted: oklch(60% 0.018 200);
+  --line: oklch(35% 0.046 208 / 0.6);
+  --accent: oklch(80% 0.22 158);
+  --accent-soft: oklch(80% 0.22 158 / 0.15);
+  --shadow: 0 0 0 1px oklch(38% 0.046 208 / 0.5),
+            0 24px 48px oklch(6% 0.025 210 / 0.65);
+  color-scheme: dark;
+}
+
+[data-theme="aurora"] body {
+  background:
+    radial-gradient(ellipse 70% 45% at 25% 25%, oklch(35% 0.2 158 / 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 75% 75%, oklch(35% 0.18 262 / 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 35% at 55% 10%, oklch(28% 0.14 200 / 0.12) 0%, transparent 50%),
+    oklch(11% 0.025 200);
+  background-attachment: fixed;
+}
+
+[data-theme="aurora"] body::before { opacity: 0; }
+[data-theme="aurora"] .card { border-radius: 10px; }
+[data-theme="aurora"] .hero-card { border-radius: 10px; }
+[data-theme="aurora"] .nav { border-bottom-color: oklch(35% 0.046 208 / 0.5); }
+
+/* ================================================================
+   THEME CHOOSER PANEL
+   ================================================================ */
+
+.theme-chooser {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.theme-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: transparent;
+  cursor: default;
+}
+
+.theme-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 100;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  min-width: 256px;
+  box-shadow: var(--shadow);
+  animation: theme-panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes theme-panel-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+[data-theme="terminal"] .theme-panel,
+[data-theme="neon"] .theme-panel { border-radius: 6px; }
+[data-theme="minimal"] .theme-panel { border-radius: 0; }
+
+.theme-option {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 10px 9px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color 140ms ease, background 140ms ease;
+  color: var(--ink);
+}
+
+.theme-option:hover {
+  background: var(--bg-3);
+  border-color: var(--line);
+}
+
+.theme-option.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+[data-theme="terminal"] .theme-option,
+[data-theme="neon"] .theme-option,
+[data-theme="glass"] .theme-option { border-radius: 4px; }
+[data-theme="minimal"] .theme-option { border-radius: 0; }
+
+.theme-option-swatches {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 7px;
+}
+
+.theme-option-swatch {
+  flex: 1;
+  height: 12px;
+  border-radius: 2px;
+}
+
+[data-theme="minimal"] .theme-option-swatch { border-radius: 0; }
+
+.theme-option-label {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+.theme-option-desc {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+  letter-spacing: 0.01em;
+}
