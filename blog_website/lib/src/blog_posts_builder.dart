@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
+// ignore: depend_on_referenced_packages
 import 'package:build/build.dart';
-import 'package:glob/glob.dart';
+// ignore: depend_on_referenced_packages
 import 'package:yaml/yaml.dart';
 
 Builder blogPostsBuilder(BuilderOptions options) => _BlogPostsBuilder();
@@ -16,10 +18,17 @@ class _BlogPostsBuilder implements Builder {
   Future<void> build(BuildStep buildStep) async {
     final posts = <_Post>[];
 
-    await for (final id in buildStep.findAssets(Glob('content/blog/*.md'))) {
-      final raw = await buildStep.readAsString(id);
-      final slug = id.pathSegments.last.replaceFirst('.md', '');
-      posts.add(_parsePost(slug, raw));
+    // Use dart:io directly so we don't need content/ in build.yaml sources
+    // (which would break jaspr_builder's intermediate cache lookups).
+    final contentDir = Directory('content/blog');
+    if (contentDir.existsSync()) {
+      for (final entity in contentDir.listSync()..sort((a, b) => a.path.compareTo(b.path))) {
+        if (entity is File && entity.path.endsWith('.md')) {
+          final raw = entity.readAsStringSync();
+          final slug = entity.uri.pathSegments.last.replaceFirst('.md', '');
+          posts.add(_parsePost(slug, raw));
+        }
+      }
     }
 
     posts.sort((a, b) => b.date.compareTo(a.date));
