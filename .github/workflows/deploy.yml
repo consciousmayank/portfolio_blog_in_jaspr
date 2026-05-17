@@ -1,13 +1,27 @@
-name: Build and Deploy to Hostinger
+name: Build and Deploy to GitHub Pages
 
 on:
   push:
     branches:
       - main
 
+# Required for actions/deploy-pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment runs at a time; skip queued runs but don't cancel in-progress
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -22,18 +36,20 @@ jobs:
 
       - name: Generate blog_posts.dart from Markdown files
         working-directory: blog_website
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Build Jaspr static site
         working-directory: blog_website
-        run: dart run jaspr build --sitemap-domain https://mayankjoshi.dev
+        run: dart run jaspr build --sitemap-domain https://mayankjoshi.in
 
-      - name: Deploy to Hostinger via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
-          local-dir: blog_website/build/jaspr/
-          server-dir: public_html/
-          dangerous-clean-slate: false
+          path: blog_website/build/jaspr/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
