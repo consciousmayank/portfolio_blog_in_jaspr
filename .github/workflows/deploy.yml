@@ -30,6 +30,11 @@ jobs:
       - name: Setup Dart SDK
         uses: dart-lang/setup-dart@v1
 
+      - name: Install Jaspr CLI
+        run: |
+          dart pub global activate jaspr_cli
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+
       - name: Install Dart dependencies
         working-directory: blog_website
         run: dart pub get
@@ -40,7 +45,7 @@ jobs:
 
       - name: Build Jaspr static site
         working-directory: blog_website
-        run: dart run jaspr build --sitemap-domain https://mayankjoshi.in
+        run: jaspr build --sitemap-domain https://mayankjoshi.in
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
