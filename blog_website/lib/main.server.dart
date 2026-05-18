@@ -10,6 +10,7 @@ void main() {
 
   runApp(Document(
     title: 'Mayank Joshi — Senior Flutter Developer · Mobile Architect',
+    lang: 'en',
     head: [
       Component.element(tag: 'link', attributes: {
         'rel': 'preconnect',
@@ -28,6 +29,32 @@ void main() {
       Component.element(tag: 'link', attributes: {
         'rel': 'stylesheet',
         'href': '/styles.css',
+      }),
+      Component.element(tag: 'meta', attributes: {
+        'name': 'description',
+        'content': 'Mayank Joshi — Senior Flutter Developer with 12 years of experience. '
+            'Mobile architect at SpiceMoney. Writing about Flutter, Dart, AI, and '
+            'cross-platform development.',
+      }),
+      Component.element(tag: 'meta', attributes: {
+        'property': 'og:site_name',
+        'content': 'Mayank Joshi',
+      }),
+      Component.element(tag: 'meta', attributes: {
+        'property': 'og:locale',
+        'content': 'en_US',
+      }),
+      Component.element(tag: 'meta', attributes: {
+        'property': 'og:image',
+        'content': 'https://mayankjoshi.in/images/og-default.png',
+      }),
+      Component.element(tag: 'meta', attributes: {
+        'name': 'twitter:card',
+        'content': 'summary_large_image',
+      }),
+      Component.element(tag: 'meta', attributes: {
+        'name': 'twitter:creator',
+        'content': '@consciousmayank',
       }),
     ],
     body: const App(),
