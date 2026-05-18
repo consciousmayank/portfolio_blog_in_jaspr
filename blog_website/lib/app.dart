@@ -28,12 +28,14 @@ class App extends StatelessComponent {
             Route(
               path: '/',
               title: 'Mayank Joshi — Senior Flutter Developer · Mobile Architect',
+              settings: const RouteSettings(changeFreq: ChangeFreq.weekly, priority: 1.0),
               builder: (_, __) => const HomePage(),
             ),
             for (final post in blogPosts)
               Route(
                 path: '/blog/${post.slug}',
                 title: '${post.title} — Mayank Joshi',
+                settings: const RouteSettings(changeFreq: ChangeFreq.monthly, priority: 0.8),
                 builder: (_, __) => BlogPostPage(post: post),
               ),
           ],
