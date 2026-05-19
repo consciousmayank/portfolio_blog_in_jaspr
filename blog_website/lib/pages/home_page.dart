@@ -50,7 +50,7 @@ class HomePage extends StatelessComponent {
       const HeroSection(),
       const TimelineSection(),
       const SkillsSection(),
-      const ExperimentsSection(),
+      // const ExperimentsSection(),
       const WritingSection(),
       const ContactSection(),
     ]);

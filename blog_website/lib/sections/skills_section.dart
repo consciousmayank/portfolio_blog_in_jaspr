@@ -18,7 +18,7 @@ class SkillsSection extends StatelessComponent {
 
   static Component _head() {
     return div(classes: 'sk-head', [
-      span(classes: 'eyebrow', [.text('03 — The stack')]),
+      span(classes: 'eyebrow', [.text('03 — The SKILLS')]),
       h2([
         .text('Depth in '),
         em([.text('one')]),
