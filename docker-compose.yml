@@ -12,7 +12,10 @@
 
 services:
   portfolio-php:
-    image: php:8.3-apache
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    image: portfolio-php:local
     container_name: portfolio-php
     restart: unless-stopped
     volumes:
