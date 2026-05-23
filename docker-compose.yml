@@ -1,0 +1,34 @@
+# portfolio_blog — only the PHP mailer runs as a container.
+# The static Jaspr build is served directly by Caddy from a bind-mount,
+# so no static-site container is needed here.
+#
+# Deploy (VPS):
+#   docker network create edge   # one-time
+#   docker compose up -d
+#
+# When/if this project ever needs a database or dynamic backend, add the
+# new services to this same file on a `portfolio-net` network — the Caddy
+# config swap is trivial (see plan §"Future: static → dynamic migration").
+
+services:
+  portfolio-php:
+    image: php:8.3-apache
+    container_name: portfolio-php
+    restart: unless-stopped
+    volumes:
+      - ./public_html:/var/www/html:ro
+    networks:
+      - edge
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    healthcheck:
+      test: ["CMD-SHELL", "apache2ctl status >/dev/null 2>&1 || curl -fsS http://localhost/ >/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  edge:
+    external: true

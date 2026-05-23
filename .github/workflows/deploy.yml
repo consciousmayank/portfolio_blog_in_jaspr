@@ -1,27 +1,17 @@
-name: Build and Deploy to GitHub Pages
+name: Build and Deploy to VPS
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
-# Required for actions/deploy-pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Only one deployment runs at a time; skip queued runs but don't cancel in-progress
 concurrency:
-  group: pages
+  group: deploy-portfolio
   cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -41,20 +31,40 @@ jobs:
 
       - name: Generate blog_posts.dart from Markdown files
         working-directory: blog_website
-        run: dart run build_runner build
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build Jaspr static site
         working-directory: blog_website
         run: jaspr build --sitemap-domain https://mayankjoshi.in
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Configure SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          path: blog_website/build/jaspr/
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Trust VPS host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Rsync static build to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          rsync -avz --delete \
+            blog_website/build/jaspr/ \
+            "$VPS_USER@$VPS_HOST:/srv/portfolio_blog/blog_website/build/jaspr/"
+
+      - name: Sync repo + restart PHP container on VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" bash -lc '
+            set -euo pipefail
+            cd /srv/portfolio_blog
+            git fetch --depth=1 origin main
+            git reset --hard origin/main
+            docker compose up -d
+          '

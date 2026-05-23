@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://mayankjoshi.dev');
+header('Access-Control-Allow-Origin: https://mayankjoshi.in');
 header('Access-Control-Allow-Methods: POST');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
