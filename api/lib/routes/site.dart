@@ -67,8 +67,8 @@ Router siteRoutes(Db db) {
           return {
             'company': m['company'],
             'title': m['title'],
-            'start': (m['start_year'] as num).toDouble(),
-            'end': (m['end_year'] as num).toDouble(),
+            'start': _toDouble(m['start_year']),
+            'end': _toDouble(m['end_year']),
             'alt': m['alt'],
           };
         }).toList(),
@@ -89,4 +89,11 @@ Router siteRoutes(Db db) {
   });
 
   return r;
+}
+
+// Postgres NUMERIC columns come back as String from package:postgres ^3
+// (to avoid precision loss). Parse defensively so any numeric-like value works.
+double _toDouble(dynamic v) {
+  if (v is num) return v.toDouble();
+  return double.parse(v.toString());
 }

@@ -74,11 +74,16 @@ Map<String, dynamic> _row(ResultRow row) {
     'id': m['id'],
     'company': m['company'],
     'title': m['title'],
-    'start': (m['start_year'] as num).toDouble(),
-    'end': (m['end_year'] as num).toDouble(),
+    'start': _toDouble(m['start_year']),
+    'end': _toDouble(m['end_year']),
     'alt': m['alt'],
     'sort_index': m['sort_index'],
   };
+}
+
+double _toDouble(dynamic v) {
+  if (v is num) return v.toDouble();
+  return double.parse(v.toString());
 }
 
 Future<Map<String, dynamic>?> _readJson(Request req) async {
