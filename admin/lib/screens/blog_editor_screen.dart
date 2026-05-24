@@ -31,6 +31,16 @@ class _BlogEditorScreenState extends ConsumerState<BlogEditorScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _titleC.dispose();
+    _slugC.dispose();
+    _descC.dispose();
+    _bodyC.dispose();
+    _coverC.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     final api = ref.read(apiClientProvider);
     if (widget.slug == null) {
@@ -138,6 +148,7 @@ class _BlogEditorScreenState extends ConsumerState<BlogEditorScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final wide = MediaQuery.of(context).size.width >= 900;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.slug == null ? 'New post' : 'Edit · ${widget.slug}'),
@@ -153,103 +164,200 @@ class _BlogEditorScreenState extends ConsumerState<BlogEditorScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            controller: _titleC,
-            decoration: const InputDecoration(labelText: 'Title'),
-            onChanged: (v) {
-              if (widget.slug == null && _slugC.text.isEmpty) {
-                _slugC.text = _slugify(v);
-              }
-            },
-          ),
-          const SizedBox(height: 12),
-          Row(children: [
-            Expanded(
-              child: TextField(
-                controller: _slugC,
-                decoration: const InputDecoration(labelText: 'Slug'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            OutlinedButton.icon(
-              onPressed: _pickDate,
-              icon: const Icon(Icons.calendar_today),
-              label: Text(
-                  '${_post.date.year}-${_post.date.month.toString().padLeft(2, '0')}-${_post.date.day.toString().padLeft(2, '0')}'),
-            ),
-            const SizedBox(width: 12),
-            Switch(
-              value: _post.published,
-              onChanged: (v) => setState(() => _post.published = v),
-            ),
-            const Text('Published'),
-          ]),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _descC,
-            maxLines: 2,
-            decoration: const InputDecoration(labelText: 'Description'),
-          ),
-          const SizedBox(height: 12),
-          _tags(),
-          const SizedBox(height: 12),
-          Row(children: [
-            Expanded(
-              child: TextField(
-                controller: _coverC,
-                decoration: const InputDecoration(labelText: 'Cover image URL'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton.outlined(onPressed: _pickCover, icon: const Icon(Icons.upload)),
-          ]),
-          const SizedBox(height: 20),
-          if (wide)
-            SizedBox(
-              height: 700,
-              child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Expanded(child: _editor()),
-                const SizedBox(width: 12),
-                Expanded(child: _preview()),
-              ]),
-            )
-          else ...[
-            SizedBox(height: 400, child: _editor()),
-            const SizedBox(height: 12),
-            SizedBox(height: 400, child: _preview()),
-          ],
-        ],
-      ),
+      body: wide ? _wideLayout() : _narrowLayout(),
     );
   }
 
-  Widget _editor() => TextField(
+  // ────────────────────────────────────────────────────────────────────────
+  // Narrow (phone) layout: meta fields collapse-by-default in an
+  // ExpansionTile at the top; Input/Preview tabs take the rest of the screen.
+  // Horizontal swipe on the body switches tabs; vertical drag scrolls the
+  // active tab. The outer Column never scrolls, so there's no gesture clash.
+  // ────────────────────────────────────────────────────────────────────────
+  Widget _narrowLayout() {
+    return Column(
+      children: [
+        Card(
+          margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
+            initiallyExpanded: widget.slug == null, // expand on "New post"
+            title: Text(
+              _titleC.text.isEmpty ? 'Post details' : _titleC.text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+                '${_dateStr(_post.date)} · ${_post.published ? "published" : "draft"} · ${_post.tags.length} tags'),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            children: [_metaFields()],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Expanded(
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              children: [
+                Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: const TabBar(
+                    tabs: [
+                      Tab(icon: Icon(Icons.edit_outlined), text: 'Input'),
+                      Tab(icon: Icon(Icons.visibility_outlined), text: 'Output'),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      _bodyEditorPanel(),
+                      _bodyPreviewPanel(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Wide (tablet/desktop) layout: keep the original side-by-side editor +
+  // preview so two-column workflow stays intact.
+  // ────────────────────────────────────────────────────────────────────────
+  Widget _wideLayout() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _metaFields(),
+        const SizedBox(height: 20),
+        SizedBox(
+          height: 700,
+          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Expanded(child: _bodyEditorPanel()),
+            const SizedBox(width: 12),
+            Expanded(child: _bodyPreviewPanel()),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  Widget _metaFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _titleC,
+          decoration: const InputDecoration(labelText: 'Title'),
+          onChanged: (v) {
+            if (widget.slug == null && _slugC.text.isEmpty) {
+              _slugC.text = _slugify(v);
+            }
+            setState(() {}); // refresh the ExpansionTile header
+          },
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _slugC,
+          decoration: const InputDecoration(labelText: 'Slug'),
+        ),
+        const SizedBox(height: 12),
+        Row(children: [
+          OutlinedButton.icon(
+            onPressed: _pickDate,
+            icon: const Icon(Icons.calendar_today),
+            label: Text(_dateStr(_post.date)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: SwitchListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Published'),
+              value: _post.published,
+              onChanged: (v) => setState(() => _post.published = v),
+            ),
+          ),
+        ]),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _descC,
+          maxLines: 2,
+          decoration: const InputDecoration(labelText: 'Description'),
+        ),
+        const SizedBox(height: 12),
+        _tags(),
+        const SizedBox(height: 12),
+        Row(children: [
+          Expanded(
+            child: TextField(
+              controller: _coverC,
+              decoration: const InputDecoration(labelText: 'Cover image URL'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton.outlined(onPressed: _pickCover, icon: const Icon(Icons.upload)),
+        ]),
+      ],
+    );
+  }
+
+  // The body editor field. Critically: autocorrect/suggestions/smart-quotes
+  // are all DISABLED so Android keyboards don't mangle pasted markdown
+  // (capitalising the first letter of a link label, replacing straight
+  // quotes with curly ones inside code fences, "fixing" the `](` boundary
+  // in inline links, etc.).
+  Widget _bodyEditorPanel() {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: TextField(
         controller: _bodyC,
         maxLines: null,
         expands: true,
+        keyboardType: TextInputType.multiline,
+        textInputAction: TextInputAction.newline,
+        textCapitalization: TextCapitalization.none,
+        autocorrect: false,
+        enableSuggestions: false,
+        smartDashesType: SmartDashesType.disabled,
+        smartQuotesType: SmartQuotesType.disabled,
         decoration: const InputDecoration(
-          labelText: 'Markdown',
+          hintText: 'Markdown here…',
           border: OutlineInputBorder(),
           alignLabelWithHint: true,
         ),
         style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
-      );
+      ),
+    );
+  }
 
-  Widget _preview() => Container(
+  // Preview re-renders only when _bodyC's value actually changes — using
+  // AnimatedBuilder isolates the rebuild to this subtree, so typing in the
+  // editor doesn't rebuild the rest of the screen.
+  Widget _bodyPreviewPanel() {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Theme.of(context).dividerColor),
           borderRadius: BorderRadius.circular(4),
         ),
         padding: const EdgeInsets.all(12),
-        child: Markdown(
-          data: _bodyC.text,
-          selectable: true,
-          onTapLink: (_, href, __) {},
+        child: AnimatedBuilder(
+          animation: _bodyC,
+          builder: (_, __) => Markdown(
+            data: _bodyC.text.isEmpty ? '*Nothing to preview yet.*' : _bodyC.text,
+            selectable: true,
+            onTapLink: (_, href, __) {},
+          ),
         ),
-      );
+      ),
+    );
+  }
 
   Widget _tags() {
     return InputDecorator(
@@ -269,6 +377,8 @@ class _BlogEditorScreenState extends ConsumerState<BlogEditorScreen> {
                 hintText: 'add tag, press Enter',
                 border: InputBorder.none, isDense: true,
               ),
+              autocorrect: false,
+              enableSuggestions: false,
               onSubmitted: (v) {
                 final t = v.trim();
                 if (t.isNotEmpty && !_post.tags.contains(t)) {
@@ -281,4 +391,7 @@ class _BlogEditorScreenState extends ConsumerState<BlogEditorScreen> {
       ),
     );
   }
+
+  String _dateStr(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }
