@@ -17,7 +17,7 @@ class _ContactFormState extends State<ContactForm> {
   String _email = '';
   String _subject = '';
   String _message = '';
-  String _hp = ''; // honeypot — must stay empty
+  String _hp = '';
   bool _submitting = false;
   String? _error;
   bool _ok = false;
@@ -79,6 +79,7 @@ class _ContactFormState extends State<ContactForm> {
     return Component.element(
       tag: 'form',
       classes: 'ct-form',
+      attributes: const {'novalidate': ''},
       events: {
         'submit': (event) {
           (event as dynamic).preventDefault();
@@ -86,110 +87,102 @@ class _ContactFormState extends State<ContactForm> {
         },
       },
       children: [
-        _field(
-          id: 'name',
-          label: 'Your name',
-          type: 'text',
-          value: _name,
-          onInput: (v) => setState(() => _name = v),
-          autocomplete: 'name',
+        div(classes: 'ct-form-head', [.text('// say hello')]),
+        // Name + email — two columns on wide screens, stacks on narrow
+        Component.element(
+          tag: 'div',
+          classes: 'ct-row',
+          children: [
+            _field(
+              id: 'cf-name',
+              label: 'Your name',
+              type: 'text',
+              value: _name,
+              autocomplete: 'name',
+              onInput: (v) => setState(() => _name = v),
+            ),
+            _field(
+              id: 'cf-email',
+              label: 'Email',
+              type: 'email',
+              value: _email,
+              autocomplete: 'email',
+              onInput: (v) => setState(() => _email = v),
+            ),
+          ],
         ),
         _field(
-          id: 'email',
-          label: 'Email',
-          type: 'email',
-          value: _email,
-          onInput: (v) => setState(() => _email = v),
-          autocomplete: 'email',
-        ),
-        _field(
-          id: 'subject',
+          id: 'cf-subject',
           label: 'Subject',
           type: 'text',
           value: _subject,
           onInput: (v) => setState(() => _subject = v),
         ),
         _textarea(
-          id: 'message',
+          id: 'cf-message',
           label: 'Message',
           value: _message,
           onInput: (v) => setState(() => _message = v),
         ),
-        // Honeypot — hidden from real users via aria + tab-index + offscreen.
-        div(
-          styles: Styles(raw: {
-            'position': 'absolute',
-            'left': '-10000px',
-            'width': '1px',
-            'height': '1px',
-            'overflow': 'hidden',
-          }),
-          attributes: const {'aria-hidden': 'true'},
-          [
-            Component.element(
-              tag: 'label',
-              attributes: const {'for': 'hp'},
-              children: [Component.text('Leave this empty')],
-            ),
-            Component.element(
-              tag: 'input',
-              attributes: {
-                'id': 'hp',
-                'name': 'hp',
-                'type': 'text',
-                'autocomplete': 'off',
-                'tabindex': '-1',
-                'value': _hp,
-              },
-              events: {
-                'input': (e) =>
-                    setState(() => _hp = ((e as dynamic).target.value as String?) ?? ''),
-              },
-            ),
-          ],
-        ),
-        if (_error != null)
-          div(
-            classes: 'ct-error',
-            styles: Styles(raw: {'color': 'var(--accent)', 'margin-top': '8px'}),
-            [.text(_error!)],
+        // Honeypot — visually hidden via CSS .ct-hp; bots fill it, humans don't
+        div(classes: 'ct-hp', attributes: const {'aria-hidden': 'true'}, [
+          Component.element(
+            tag: 'label',
+            attributes: const {'for': 'cf-hp'},
+            children: [Component.text('Leave this field empty')],
           ),
-        div(classes: 'ct-actions', styles: Styles(raw: {'margin-top': '12px'}), [
+          Component.element(
+            tag: 'input',
+            attributes: {
+              'id': 'cf-hp',
+              'name': 'hp',
+              'type': 'text',
+              'autocomplete': 'off',
+              'tabindex': '-1',
+              'value': _hp,
+            },
+            events: {
+              'input': (e) => setState(
+                  () => _hp = ((e as dynamic).target.value as String?) ?? ''),
+            },
+          ),
+        ]),
+        if (_error != null)
+          div(classes: 'ct-error', [.text(_error!)]),
+        div(classes: 'ct-actions', [
           Component.element(
             tag: 'button',
-            classes: 'btn',
+            classes: 'ct-submit',
             attributes: {
               'type': 'submit',
               if (_submitting) 'disabled': '',
             },
             children: [
-              Component.text(_submitting ? 'Sending…' : 'Send message →'),
+              Component.text(_submitting ? 'Sending…' : 'Send message'),
+              span(styles: Styles(raw: {'font-family': 'var(--f-mono)'}), [.text('→')]),
             ],
           ),
+          span(classes: 'ct-meta', [
+            .text('replies usually within a day'),
+          ]),
         ]),
       ],
     );
   }
 
   Component _success() {
-    return div(
-      classes: 'ct-success',
-      styles: Styles(raw: {
-        'padding': '20px',
-        'border': '1px solid var(--accent)',
-        'border-radius': '8px',
-        'background': 'var(--accent-soft)',
-      }),
-      [
-        h4(styles: Styles(raw: {'margin': '0 0 8px'}), [.text('Thanks — got it.')]),
-        p(styles: Styles(raw: {'margin': '0'}), [
-          .text(
-            "I read every message I get. Expect a reply within a day or two — "
-            "from consciousmayank@gmail.com.",
-          ),
-        ]),
-      ],
-    );
+    return div(classes: 'ct-success', [
+      div(classes: 'h', [
+        span(classes: 'dot', [.text('✓')]),
+        .text('Thanks — got it.'),
+      ]),
+      p([
+        .text(
+          "I read every message that comes through. Expect a reply from "
+          "consciousmayank@gmail.com within a day or two.",
+        ),
+      ]),
+    ]);
   }
 
   Component _field({
@@ -200,14 +193,16 @@ class _ContactFormState extends State<ContactForm> {
     required void Function(String) onInput,
     String? autocomplete,
   }) {
-    return div(classes: 'ct-field', styles: Styles(raw: {'margin-bottom': '10px'}), [
+    return div(classes: 'ct-field', [
       Component.element(
         tag: 'label',
+        classes: 'ct-label',
         attributes: {'for': id},
         children: [Component.text(label)],
       ),
       Component.element(
         tag: 'input',
+        classes: 'ct-input',
         attributes: {
           'id': id,
           'name': id,
@@ -217,7 +212,8 @@ class _ContactFormState extends State<ContactForm> {
           'required': '',
         },
         events: {
-          'input': (e) => onInput(((e as dynamic).target.value as String?) ?? ''),
+          'input': (e) =>
+              onInput(((e as dynamic).target.value as String?) ?? ''),
         },
       ),
     ]);
@@ -229,14 +225,16 @@ class _ContactFormState extends State<ContactForm> {
     required String value,
     required void Function(String) onInput,
   }) {
-    return div(classes: 'ct-field', styles: Styles(raw: {'margin-bottom': '10px'}), [
+    return div(classes: 'ct-field', [
       Component.element(
         tag: 'label',
+        classes: 'ct-label',
         attributes: {'for': id},
         children: [Component.text(label)],
       ),
       Component.element(
         tag: 'textarea',
+        classes: 'ct-textarea',
         attributes: {
           'id': id,
           'name': id,
@@ -244,7 +242,8 @@ class _ContactFormState extends State<ContactForm> {
           'required': '',
         },
         events: {
-          'input': (e) => onInput(((e as dynamic).target.value as String?) ?? ''),
+          'input': (e) =>
+              onInput(((e as dynamic).target.value as String?) ?? ''),
         },
         children: [Component.text(value)],
       ),

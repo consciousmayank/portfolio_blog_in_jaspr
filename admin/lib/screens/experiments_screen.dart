@@ -3,6 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/models.dart';
 import '../auth/auth.dart';
+import '../theme/app_theme.dart';
+import '../theme/tokens.dart';
+import '../widgets/app_bar.dart';
+import '../widgets/app_chip.dart';
+import '../widgets/eyebrow.dart';
+import 'profile_sheet.dart';
 
 final _experimentsProvider = FutureProvider.autoDispose<List<ExperimentCard>>((ref) {
   return ref.watch(apiClientProvider).listExperiments();
@@ -14,26 +20,35 @@ class ExperimentsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(_experimentsProvider);
+    final t = AppTokens.of(context);
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
+      backgroundColor: t.bg,
+      appBar: DesignAppBar(
+        title: 'Experiments',
+        eyebrow: 'workshop',
+        eyebrowNumber: '04',
+        onAvatarTap: () => showProfileSheet(context),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: t.accent,
+        foregroundColor: Colors.white,
         onPressed: () => _edit(context, ref, null),
-        icon: const Icon(Icons.add),
-        label: const Text('New experiment'),
+        child: const Icon(Icons.add),
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (cards) => ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: cards.length,
-          itemBuilder: (_, i) => Card(
-            child: ListTile(
-              title: Text('${cards[i].code} · ${cards[i].title}'),
-              subtitle: Text('${cards[i].status} · ${cards[i].demo.length} demo lines'),
-              onTap: () => _edit(context, ref, cards[i]),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: () async {
+        data: (cards) => RefreshIndicator(
+          onRefresh: () => ref.refresh(_experimentsProvider.future),
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 100),
+            itemCount: cards.length,
+            itemBuilder: (_, i) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _ExperimentCard(
+                card: cards[i],
+                onTap: () => _edit(context, ref, cards[i]),
+                onDelete: () async {
                   await ref.read(apiClientProvider).deleteExperiment(cards[i].id!);
                   ref.invalidate(_experimentsProvider);
                 },
@@ -64,41 +79,53 @@ class ExperimentsScreen extends ConsumerWidget {
             child: SingleChildScrollView(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 Row(children: [
-                  Expanded(child: TextField(controller: code, decoration: const InputDecoration(labelText: 'Code (01, 02…)'))),
+                  Expanded(child: TextField(controller: code, decoration: const InputDecoration(labelText: 'CODE'))),
                   const SizedBox(width: 12),
-                  Expanded(child: TextField(controller: status, decoration: const InputDecoration(labelText: 'Status (Shipping/Open/Concept)'))),
+                  Expanded(child: TextField(controller: status, decoration: const InputDecoration(labelText: 'STATUS'))),
                   const SizedBox(width: 12),
-                  SizedBox(width: 80, child: TextField(controller: span, decoration: const InputDecoration(labelText: 'Span'), keyboardType: TextInputType.number)),
+                  SizedBox(width: 80, child: TextField(controller: span, decoration: const InputDecoration(labelText: 'SPAN'), keyboardType: TextInputType.number)),
                 ]),
-                TextField(controller: title, decoration: const InputDecoration(labelText: 'Title')),
-                TextField(controller: body, decoration: const InputDecoration(labelText: 'Body'), maxLines: 3),
-                TextField(controller: meta, decoration: const InputDecoration(labelText: 'Meta')),
-                const SizedBox(height: 12),
-                const Align(alignment: Alignment.centerLeft, child: Text('Demo lines (line + style: pr/ok/mu)')),
+                const SizedBox(height: 8),
+                TextField(controller: title, decoration: const InputDecoration(labelText: 'TITLE')),
+                const SizedBox(height: 8),
+                TextField(controller: body, decoration: const InputDecoration(labelText: 'BODY'), maxLines: 3),
+                const SizedBox(height: 8),
+                TextField(controller: meta, decoration: const InputDecoration(labelText: 'META')),
+                const SizedBox(height: 16),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Eyebrow(label: 'demo lines · line + style'),
+                ),
+                const SizedBox(height: 8),
                 for (var i = 0; i < demo.length; i++)
-                  Row(key: ValueKey('demo_$i'), children: [
-                    Expanded(child: TextField(
-                      controller: TextEditingController(text: demo[i][0]),
-                      decoration: const InputDecoration(labelText: 'Line'),
-                      onChanged: (v) => demo[i][0] = v,
-                    )),
-                    const SizedBox(width: 8),
-                    SizedBox(width: 80, child: TextField(
-                      controller: TextEditingController(text: demo[i].length > 1 ? demo[i][1] : ''),
-                      decoration: const InputDecoration(labelText: 'Style'),
-                      onChanged: (v) {
-                        if (demo[i].length > 1) {
-                          demo[i][1] = v;
-                        } else {
-                          demo[i].add(v);
-                        }
-                      },
-                    )),
-                    IconButton(icon: const Icon(Icons.remove_circle_outline), onPressed: () => setS(() => demo.removeAt(i))),
-                  ]),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(key: ValueKey('demo_$i'), children: [
+                      Expanded(child: TextField(
+                        controller: TextEditingController(text: demo[i][0]),
+                        decoration: const InputDecoration(labelText: 'LINE'),
+                        onChanged: (v) => demo[i][0] = v,
+                      )),
+                      const SizedBox(width: 8),
+                      SizedBox(width: 90, child: TextField(
+                        controller: TextEditingController(text: demo[i].length > 1 ? demo[i][1] : ''),
+                        decoration: const InputDecoration(labelText: 'STYLE'),
+                        onChanged: (v) {
+                          if (demo[i].length > 1) {
+                            demo[i][1] = v;
+                          } else {
+                            demo[i].add(v);
+                          }
+                        },
+                      )),
+                      IconButton(
+                          icon: const Icon(Icons.remove_circle_outline, size: 18),
+                          onPressed: () => setS(() => demo.removeAt(i))),
+                    ]),
+                  ),
                 TextButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add demo line'),
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Add line'),
                   onPressed: () => setS(() => demo.add(['', 'mu'])),
                 ),
               ]),
@@ -114,12 +141,8 @@ class ExperimentsScreen extends ConsumerWidget {
     if (ok != true) return;
     final api = ref.read(apiClientProvider);
     final next = ExperimentCard(
-      id: c?.id,
-      code: code.text.trim(),
-      status: status.text.trim(),
-      title: title.text.trim(),
-      body: body.text,
-      meta: meta.text,
+      id: c?.id, code: code.text.trim(), status: status.text.trim(),
+      title: title.text.trim(), body: body.text, meta: meta.text,
       span: int.tryParse(span.text) ?? 4,
       sortIndex: c?.sortIndex ?? 0,
       demo: demo,
@@ -130,5 +153,94 @@ class ExperimentsScreen extends ConsumerWidget {
       await api.updateExperiment(c.id!, next);
     }
     ref.invalidate(_experimentsProvider);
+  }
+}
+
+class _ExperimentCard extends StatelessWidget {
+  const _ExperimentCard({
+    required this.card,
+    required this.onTap,
+    required this.onDelete,
+  });
+  final ExperimentCard card;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  ChipKind _kindOf(String status) {
+    final s = status.toLowerCase();
+    if (s.contains('live') || s.contains('ship')) return ChipKind.success;
+    if (s.contains('pause') || s.contains('paused') || s.contains('open')) return ChipKind.warn;
+    if (s.contains('kill') || s.contains('drop')) return ChipKind.danger;
+    return ChipKind.accent;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppTokens.of(context);
+    final kind = _kindOf(card.status);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Text(card.code,
+                  style: AppText.mono(context, size: 10.5, color: t.ink3)),
+              const SizedBox(width: 8),
+              StatusChip(label: card.status, kind: kind),
+              const Spacer(),
+              Text('span ${card.span}',
+                  style: AppText.mono(context, size: 10.5, color: t.ink4)),
+              IconButton(
+                onPressed: onDelete,
+                icon: Icon(Icons.more_horiz, size: 16, color: t.ink3),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                constraints: const BoxConstraints(),
+              ),
+            ]),
+            const SizedBox(height: 10),
+            Text(card.title,
+                style: AppText.serif(context, size: 22).copyWith(height: 1.1)),
+            const SizedBox(height: 6),
+            Text(card.body,
+                style: TextStyle(fontSize: 13, color: t.ink2, height: 1.5)),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.only(top: 10),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: t.border, style: BorderStyle.solid),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Eyebrow(label: 'demo lines'),
+                  const SizedBox(height: 6),
+                  for (final d in card.demo)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(children: [
+                        Icon(Icons.drag_indicator, size: 14, color: t.ink4),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            d.isNotEmpty ? d[0] : '',
+                            style: AppText.mono(context, size: 11.5),
+                          ),
+                        ),
+                        if (d.length > 1 && d[1].isNotEmpty)
+                          AppChip(label: d[1], dense: true),
+                      ]),
+                    ),
+                ],
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
   }
 }

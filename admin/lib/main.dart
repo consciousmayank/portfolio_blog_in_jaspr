@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'routes/router.dart';
+import 'theme/app_theme.dart';
+import 'theme/theme_controller.dart';
 
 void main() {
   runApp(const ProviderScope(child: AdminApp()));
@@ -13,22 +15,13 @@ class AdminApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeControllerProvider);
     return MaterialApp.router(
-      title: 'Portfolio Admin',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF8a5a8c),
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF8a5a8c),
-          brightness: Brightness.dark,
-        ),
-      ),
+      title: 'MJ Admin',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.editorial(),
+      darkTheme: AppTheme.terminal(),
+      themeMode: themeMode.themeMode,
       routerConfig: router,
     );
   }

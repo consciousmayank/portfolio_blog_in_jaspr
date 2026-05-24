@@ -1,4 +1,4 @@
-package `in`.mayankjoshi.admin.admin
+package `in`.mayankjoshi.admin
 
 import io.flutter.embedding.android.FlutterActivity
 
