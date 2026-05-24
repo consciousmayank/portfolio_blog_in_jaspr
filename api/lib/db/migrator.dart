@@ -42,7 +42,11 @@ class Migrator {
       final sql = await file.readAsString();
       stderr.writeln('migrator: applying $name');
       await db.pool.runTx((tx) async {
-        await tx.execute(Sql(sql));
+        // Migration files contain multiple statements separated by `;`.
+        // The default extended-query protocol prepares one statement at a time
+        // and rejects multi-statement strings. Simple-query mode sends the
+        // whole script to the server and lets Postgres parse it.
+        await tx.execute(sql, queryMode: QueryMode.simple);
         await tx.execute(
           Sql.named('INSERT INTO _schema_migrations (version) VALUES (@v)'),
           parameters: {'v': version},
