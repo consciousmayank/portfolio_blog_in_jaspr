@@ -7,8 +7,11 @@
 
 services:
   postgres:
+    # Bound to 55432 on the host to avoid colliding with a system Postgres
+    # on the default 5432. Containers still reach each other on 5432
+    # internally; the DATABASE_URL inside the api container is unchanged.
     ports:
-      - "5432:5432"
+      - "55432:5432"
   api:
     ports:
       - "8080:8080"

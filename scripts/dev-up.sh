@@ -30,6 +30,22 @@ if ! docker info >/dev/null 2>&1; then
 fi
 ok "Docker daemon reachable"
 
+# Port conflicts kill `docker compose up` with an opaque error. Check ahead.
+PORTS=(55432 8080 8090 8091)
+CONFLICTS=()
+for p in "${PORTS[@]}"; do
+  if lsof -nP -iTCP:"$p" -sTCP:LISTEN >/dev/null 2>&1; then
+    CONFLICTS+=("$p")
+  fi
+done
+if [ ${#CONFLICTS[@]} -gt 0 ]; then
+  err "Host port(s) already in use: ${CONFLICTS[*]}"
+  printf '  Free them first, then retry. To see what owns a port:\n'
+  printf '    lsof -nP -iTCP:%s -sTCP:LISTEN\n' "${CONFLICTS[0]}"
+  exit 1
+fi
+ok "Host ports 55432, 8080, 8090, 8091 are free"
+
 # The edge network is external to this compose file (in prod it's shared with
 # the Caddy stack). Locally we just need it to exist so services can join.
 if ! docker network inspect edge >/dev/null 2>&1; then
@@ -116,7 +132,7 @@ printf '  %sAPI base      %s  http://localhost:8080\n' "$BLUE" "$RESET"
 printf '  %sHealth        %s  http://localhost:8080/health\n' "$DIM" "$RESET"
 printf '  %sBlog index    %s  http://localhost:8080/api/blog\n' "$DIM" "$RESET"
 printf '  %sSite bundle   %s  http://localhost:8080/api/site\n' "$DIM" "$RESET"
-printf '  %sPostgres      %s  postgres://portfolio:devpw@localhost:5432/portfolio\n' "$DIM" "$RESET"
+printf '  %sPostgres      %s  postgres://portfolio:devpw@localhost:55432/portfolio\n' "$DIM" "$RESET"
 
 # ---- Admin credentials ----------------------------------------------------
 step "Admin login"
