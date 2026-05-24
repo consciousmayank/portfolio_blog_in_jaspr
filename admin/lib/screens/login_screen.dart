@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth.dart';
+import '../theme/app_theme.dart';
+import '../theme/tokens.dart';
+import '../widgets/eyebrow.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -14,8 +17,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _baseUrl = TextEditingController();
-  String? _error;
   bool _showBaseUrl = false;
+  bool _obscure = true;
+  String? _error;
 
   @override
   void initState() {
@@ -28,7 +32,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       if (_baseUrl.text.trim().isNotEmpty &&
           _baseUrl.text.trim() != ref.read(apiBaseUrlProvider)) {
-        await ref.read(authControllerProvider.notifier).setBaseUrl(_baseUrl.text.trim());
+        await ref
+            .read(authControllerProvider.notifier)
+            .setBaseUrl(_baseUrl.text.trim());
       }
       await ref.read(authControllerProvider.notifier).login(
             _email.text.trim(),
@@ -42,63 +48,128 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
+    final t = AppTokens.of(context);
     return Scaffold(
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 380),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Portfolio admin',
-                    style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _email,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  autocorrect: false,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _password,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  onSubmitted: (_) => _submit(),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: () => setState(() => _showBaseUrl = !_showBaseUrl),
-                      child: Text(_showBaseUrl ? 'Hide API URL' : 'Change API URL'),
-                    ),
-                  ],
-                ),
-                if (_showBaseUrl)
-                  TextField(
-                    controller: _baseUrl,
-                    decoration: const InputDecoration(
-                      labelText: 'API base URL',
-                      hintText: 'https://mayankjoshi.in',
+      backgroundColor: t.bg,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(28, 38, 28, 22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Eyebrow(number: '00', label: 'workshop'),
+                  const SizedBox(height: 18),
+                  Text.rich(
+                    TextSpan(children: [
+                      TextSpan(
+                          text: 'Welcome back, ',
+                          style: AppText.serif(context, size: 44).copyWith(
+                            height: 0.98, letterSpacing: -0.66,
+                          )),
+                      TextSpan(
+                          text: 'Mayank.',
+                          style: AppText.serif(context, size: 44, italic: true).copyWith(
+                            height: 0.98, letterSpacing: -0.66,
+                          )),
+                    ]),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Sign in to the back room. The public site reads from '
+                    'whatever you publish here.',
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      color: t.ink3,
+                      height: 1.45,
                     ),
                   ),
-                if (_error != null) ...[
-                  const SizedBox(height: 12),
-                  Text(_error!, style: const TextStyle(color: Colors.redAccent)),
+                  const SizedBox(height: 42),
+                  TextField(
+                    controller: _email,
+                    decoration: const InputDecoration(labelText: 'EMAIL'),
+                    keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: _password,
+                    obscureText: _obscure,
+                    onSubmitted: (_) => _submit(),
+                    decoration: InputDecoration(
+                      labelText: 'PASSWORD',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          size: 18,
+                        ),
+                        onPressed: () => setState(() => _obscure = !_obscure),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    height: 44,
+                    child: FilledButton(
+                      onPressed: auth.loading ? null : _submit,
+                      child: auth.loading
+                          ? const SizedBox(
+                              width: 16, height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Open up'),
+                                SizedBox(width: 6),
+                                Icon(Icons.chevron_right, size: 16),
+                              ],
+                            ),
+                    ),
+                  ),
+                  if (_error != null) ...[
+                    const SizedBox(height: 12),
+                    Text(_error!,
+                        style: TextStyle(color: t.danger, fontSize: 12.5)),
+                  ],
+                  const SizedBox(height: 14),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: () => setState(() => _showBaseUrl = !_showBaseUrl),
+                      child: Text(
+                        _showBaseUrl ? 'Hide API URL' : 'Change API URL',
+                        style: AppText.mono(
+                          context, size: 12,
+                          color: t.ink3,
+                        ).copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: t.ink3,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (_showBaseUrl) ...[
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _baseUrl,
+                      decoration: const InputDecoration(
+                        labelText: 'API BASE URL',
+                        hintText: 'https://mayankjoshi.in',
+                      ),
+                      autocorrect: false,
+                      enableSuggestions: false,
+                    ),
+                  ],
+                  const SizedBox(height: 28),
+                  Text(
+                    'v 0.1.0 · admin · mayankjoshi.in',
+                    style: AppText.mono(context, size: 11, color: t.ink4),
+                  ),
                 ],
-                const SizedBox(height: 20),
-                FilledButton(
-                  onPressed: auth.loading ? null : _submit,
-                  child: auth.loading
-                      ? const SizedBox(
-                          height: 16, width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Sign in'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
