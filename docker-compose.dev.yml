@@ -1,0 +1,23 @@
+# Local development overrides — published ports only.
+# Usage (via scripts/dev-up.sh):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
+# Production never loads this file (it only loads docker-compose.yml), so the
+# ports stay closed on the VPS where Caddy is the only public entry point.
+
+services:
+  postgres:
+    # Bound to 55432 on the host to avoid colliding with a system Postgres
+    # on the default 5432. Containers still reach each other on 5432
+    # internally; the DATABASE_URL inside the api container is unchanged.
+    ports:
+      - "55432:5432"
+  api:
+    ports:
+      - "8080:8080"
+  web:
+    ports:
+      - "8090:8080"
+  admin-web:
+    ports:
+      - "8091:80"

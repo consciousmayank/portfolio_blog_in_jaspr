@@ -1,37 +1,108 @@
-# portfolio_blog — only the PHP mailer runs as a container.
-# The static Jaspr build is served directly by Caddy from a bind-mount,
-# so no static-site container is needed here.
+# portfolio_blog — dynamic stack (Jaspr SSR + Dart API + Postgres + Flutter admin Web)
 #
-# Deploy (VPS):
-#   docker network create edge   # one-time
-#   docker compose up -d
+# Networks:
+#   edge           external, shared with /srv/edge/ Caddy stack (terminates TLS)
+#   portfolio-net  internal, isolates Postgres from the public edge
 #
-# When/if this project ever needs a database or dynamic backend, add the
-# new services to this same file on a `portfolio-net` network — the Caddy
-# config swap is trivial (see plan §"Future: static → dynamic migration").
+# Secrets come from /srv/portfolio_blog/.env on the VPS (gitignored). See README / handoff doc.
+#
+# Bring up order (first time):
+#   docker network create edge          # one-time, only if not present
+#   docker compose up -d postgres       # wait for healthcheck
+#   docker compose up -d api            # runs migrations on boot
+#   docker compose up -d web admin-web
 
 services:
-  portfolio-php:
-    build:
-      context: .
-      dockerfile: Dockerfile.php
-    image: portfolio-php:local
-    container_name: portfolio-php
+  postgres:
+    image: postgres:16-alpine
+    container_name: portfolio-postgres
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_DB: portfolio
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./public_html:/var/www/html:ro
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    image: portfolio-api:local
+    container_name: portfolio-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: "8080"
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - portfolio-net
+      - edge
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+
+  web:
+    build:
+      context: ./blog_website
+      dockerfile: Dockerfile
+    image: portfolio-web:local
+    container_name: portfolio-web
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: http://api:8080
+      PORT: "8080"
+    networks:
+      - edge
+    depends_on:
+      api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+
+  admin-web:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    image: portfolio-admin-web:local
+    container_name: portfolio-admin-web
+    restart: unless-stopped
     networks:
       - edge
     deploy:
       resources:
         limits:
-          memory: 256m
-    healthcheck:
-      test: ["CMD-SHELL", "apache2ctl status >/dev/null 2>&1 || curl -fsS http://localhost/ >/dev/null"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+          memory: 128m
 
 networks:
   edge:
     external: true
+  portfolio-net:
+    driver: bridge
+
+volumes:
+  pgdata:
