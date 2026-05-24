@@ -33,14 +33,14 @@ class ContactSection extends StatelessComponent {
           "or a team that needs steady hands — I read every message I get.",
         ),
       ]),
-      a(href: 'mailto:consciousmayank@gmail.com', classes: 'email', [
-        span([.text('consciousmayank@gmail.com')]),
-        RawText(
-          '<svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
-          'style="width:18px;height:18px">'
-          '<path d="M7 17 17 7M9 7h8v8"/></svg>',
-        ),
-      ]),
+      // a(href: 'mailto:consciousmayank@gmail.com', classes: 'email', [
+      //   span([.text('consciousmayank@gmail.com')]),
+      //   RawText(
+      //     '<svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+      //     'style="width:18px;height:18px">'
+      //     '<path d="M7 17 17 7M9 7h8v8"/></svg>',
+      //   ),
+      // ]),
       div(styles: Styles(raw: {'margin-top': '20px'}), [
         const ContactForm(),
       ]),
