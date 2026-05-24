@@ -1,10 +1,12 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../data/site_content.dart';
+import '../data/api_client.dart';
 
 class ExperimentsSection extends StatelessComponent {
-  const ExperimentsSection({super.key});
+  const ExperimentsSection({required this.experiments, super.key});
+
+  final List<ExperimentCard> experiments;
 
   @override
   Component build(BuildContext context) {
@@ -29,7 +31,7 @@ class ExperimentsSection extends StatelessComponent {
     ]);
   }
 
-  static Component _grid() {
+  Component _grid() {
     return div(classes: 'ex-grid', [
       for (final c in experiments) _card(c),
     ]);

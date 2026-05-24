@@ -1,10 +1,12 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../data/blog_posts.dart';
+import '../data/api_client.dart';
 
 class WritingSection extends StatelessComponent {
-  const WritingSection({super.key});
+  const WritingSection({required this.posts, super.key});
+
+  final List<BlogPost> posts;
 
   @override
   Component build(BuildContext context) {
@@ -34,9 +36,9 @@ class WritingSection extends StatelessComponent {
     ]);
   }
 
-  static Component _feed() {
+  Component _feed() {
     return div(classes: 'wr-feed', [
-      for (final post in blogPosts) _row(post),
+      for (final post in posts) _row(post),
     ]);
   }
 

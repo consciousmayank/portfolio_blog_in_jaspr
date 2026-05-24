@@ -1,10 +1,17 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../data/site_content.dart';
+import '../data/api_client.dart';
 
 class SkillsSection extends StatelessComponent {
-  const SkillsSection({super.key});
+  const SkillsSection({
+    required this.coreSkills,
+    required this.lists,
+    super.key,
+  });
+
+  final List<CoreSkill> coreSkills;
+  final Map<String, List<String>> lists;
 
   @override
   Component build(BuildContext context) {
@@ -33,19 +40,21 @@ class SkillsSection extends StatelessComponent {
     ]);
   }
 
-  static Component _grid() {
+  List<String> _list(String key) => lists[key] ?? const <String>[];
+
+  Component _grid() {
     return div(classes: 'sk-grid', [
       _coreCard(),
       _aiCard(),
-      _chipCard('// state management', stateManagement, 4),
-      _chipCard('// architecture', architecture, 4),
-      _chipCard('// platforms', platforms, 4),
-      _chipCard('// web & ops', webOps, 12),
+      _chipCard('// state management', _list('stateManagement'), 4),
+      _chipCard('// architecture', _list('architecture'), 4),
+      _chipCard('// platforms', _list('platforms'), 4),
+      _chipCard('// web & ops', _list('webOps'), 12),
       _philosophy(),
     ]);
   }
 
-  static Component _coreCard() {
+  Component _coreCard() {
     return div(
       classes: 'sk-card',
       styles: Styles(raw: {'grid-column': 'span 7'}),
@@ -76,7 +85,7 @@ class SkillsSection extends StatelessComponent {
     ]);
   }
 
-  static Component _aiCard() {
+  Component _aiCard() {
     return div(
       classes: 'sk-card',
       styles: Styles(raw: {'grid-column': 'span 5'}),
@@ -99,7 +108,7 @@ class SkillsSection extends StatelessComponent {
             ),
           ],
         ),
-        _chips(aiStack),
+        _chips(_list('aiStack')),
       ],
     );
   }

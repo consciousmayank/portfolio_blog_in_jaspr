@@ -3,7 +3,6 @@ import 'package:jaspr/jaspr.dart';
 import 'package:jaspr_router/jaspr_router.dart';
 
 import 'components/theme_toggle.dart';
-import 'data/blog_posts.dart';
 import 'pages/blog_post_page.dart';
 import 'pages/home_page.dart';
 
@@ -31,13 +30,12 @@ class App extends StatelessComponent {
               settings: const RouteSettings(changeFreq: ChangeFreq.weekly, priority: 1.0),
               builder: (_, __) => const HomePage(),
             ),
-            for (final post in blogPosts)
-              Route(
-                path: '/blog/${post.slug}',
-                title: '${post.title} — Mayank Joshi',
-                settings: const RouteSettings(changeFreq: ChangeFreq.monthly, priority: 0.8),
-                builder: (_, __) => BlogPostPage(post: post),
-              ),
+            Route(
+              path: '/blog/:slug',
+              title: 'Mayank Joshi',
+              settings: const RouteSettings(changeFreq: ChangeFreq.monthly, priority: 0.8),
+              builder: (_, state) => BlogPostPage(slug: state.params['slug']!),
+            ),
           ],
         ),
       ]),
@@ -58,7 +56,6 @@ class App extends StatelessComponent {
         nav(classes: 'nav-links', [
           a(href: '/#timeline', [.text('Career')]),
           a(href: '/#skills', [.text('Skills')]),
-          // a(href: '/#experiments', [.text('AI Lab')]),
           a(href: '/#writing', [.text('My Writings')]),
           a(href: '/#contact', [.text('Contact')]),
           const ThemeToggle(),

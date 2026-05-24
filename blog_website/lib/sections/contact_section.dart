@@ -1,6 +1,8 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
+import '../components/contact_form.dart';
+
 class ContactSection extends StatelessComponent {
   const ContactSection({super.key});
 
@@ -38,6 +40,9 @@ class ContactSection extends StatelessComponent {
           'style="width:18px;height:18px">'
           '<path d="M7 17 17 7M9 7h8v8"/></svg>',
         ),
+      ]),
+      div(styles: Styles(raw: {'margin-top': '20px'}), [
+        const ContactForm(),
       ]),
     ]);
   }

@@ -1,7 +1,7 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../data/site_content.dart';
+import '../data/api_client.dart';
 
 const _yStart = 2014;
 const _yEnd = 2026;
@@ -11,7 +11,9 @@ String _pctFrom(double y) => '${((y - _yStart) / _span) * 100}%';
 String _pctWidth(double start, double end) => '${((end - start) / _span) * 100}%';
 
 class TimelineSection extends StatelessComponent {
-  const TimelineSection({super.key});
+  const TimelineSection({required this.roles, super.key});
+
+  final List<Role> roles;
 
   @override
   Component build(BuildContext context) {
@@ -59,7 +61,7 @@ class TimelineSection extends StatelessComponent {
     ]);
   }
 
-  static Component _chart() {
+  Component _chart() {
     final years = List.generate(_yEnd - _yStart, (idx) => _yStart + idx);
 
     return div(classes: 'tl-chart', [

@@ -6,6 +6,8 @@
 
 import 'package:jaspr/client.dart';
 
+import 'package:blog_website/components/contact_form.dart'
+    deferred as _contact_form;
 import 'package:blog_website/components/hero_typewriter.dart'
     deferred as _hero_typewriter;
 import 'package:blog_website/components/theme_toggle.dart'
@@ -29,6 +31,10 @@ import 'package:blog_website/components/theme_toggle.dart'
 /// ```
 ClientOptions get defaultClientOptions => ClientOptions(
   clients: {
+    'contact_form': ClientLoader(
+      (p) => _contact_form.ContactForm(),
+      loader: _contact_form.loadLibrary,
+    ),
     'hero_typewriter': ClientLoader(
       (p) => _hero_typewriter.HeroTypewriter(),
       loader: _hero_typewriter.loadLibrary,
