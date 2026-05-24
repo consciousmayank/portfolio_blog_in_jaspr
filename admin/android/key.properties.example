@@ -1,0 +1,7 @@
+# Copy to admin/android/key.properties (gitignored) after running
+# scripts/init-keystore.sh, which fills these values in automatically.
+
+storeFile=keystore/release.jks
+storePassword=<set-by-init-keystore>
+keyAlias=mjadmin
+keyPassword=<set-by-init-keystore>

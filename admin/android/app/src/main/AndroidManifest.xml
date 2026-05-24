@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for the admin app to reach the API. Without this, release
+         builds silently fail every HTTP request (debug/profile builds get
+         INTERNET via the per-variant manifests under src/debug + src/profile). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="admin"
+        android:label="MJ Admin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
