@@ -80,7 +80,7 @@ class _BlogPostPageState extends State<BlogPostPage>
       section(classes: 'blog-post', [
         div(classes: 'wrap', [
           div(classes: 'post-back', [
-            a(href: '/', [.text('← Back to home')]),
+            a(href: '/#writing', [.text('← Back to all posts')]),
           ]),
           Component.element(tag: 'article', children: [
             header(classes: 'post-header', [
@@ -109,7 +109,7 @@ class _BlogPostPageState extends State<BlogPostPage>
           h1([.text('Post not found')]),
           p([
             .text('No post matched “${component.slug}”. '),
-            a(href: '/', [.text('← Back to home')]),
+            a(href: '/#writing', [.text('← Back to all posts')]),
           ]),
         ]),
       ]),
