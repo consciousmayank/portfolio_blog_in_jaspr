@@ -31,7 +31,7 @@ class WritingSection extends StatelessComponent {
       ]),
       span(classes: 'pill', [
         span(classes: 'dot', []),
-        .text('writing weekly · since 2024'),
+        .text('writing daily · since May 2026'),
       ]),
     ]);
   }
