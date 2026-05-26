@@ -101,6 +101,7 @@ class ExperimentsScreen extends ConsumerWidget {
     final meta = TextEditingController(text: c?.meta);
     final link = TextEditingController(text: c?.link);
     final span = TextEditingController(text: (c?.span ?? 4).toString());
+    final sort = TextEditingController(text: (c?.sortIndex ?? 0).toString());
     final demo = List<List<String>>.from(c?.demo ?? const []);
     var isActive = c?.isActive ?? true;
 
@@ -118,7 +119,9 @@ class ExperimentsScreen extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(child: TextField(controller: status, decoration: const InputDecoration(labelText: 'STATUS'))),
                   const SizedBox(width: 12),
-                  SizedBox(width: 80, child: TextField(controller: span, decoration: const InputDecoration(labelText: 'SPAN'), keyboardType: TextInputType.number)),
+                  SizedBox(width: 70, child: TextField(controller: span, decoration: const InputDecoration(labelText: 'SPAN'), keyboardType: TextInputType.number)),
+                  const SizedBox(width: 8),
+                  SizedBox(width: 70, child: TextField(controller: sort, decoration: const InputDecoration(labelText: 'SORT', helperText: 'lower first'), keyboardType: TextInputType.number)),
                 ]),
                 const SizedBox(height: 8),
                 TextField(controller: title, decoration: const InputDecoration(labelText: 'TITLE')),
@@ -196,7 +199,7 @@ class ExperimentsScreen extends ConsumerWidget {
       id: c?.id, code: code.text.trim(), status: status.text.trim(),
       title: title.text.trim(), body: body.text, meta: meta.text,
       span: int.tryParse(span.text) ?? 4,
-      sortIndex: c?.sortIndex ?? 0,
+      sortIndex: int.tryParse(sort.text) ?? 0,
       link: link.text.trim(),
       isActive: isActive,
       demo: demo,
@@ -247,7 +250,7 @@ class _ExperimentCard extends StatelessWidget {
               const SizedBox(width: 8),
               StatusChip(label: card.status, kind: kind),
               const Spacer(),
-              Text('span ${card.span}',
+              Text('sort ${card.sortIndex} · span ${card.span}',
                   style: AppText.mono(context, size: 10.5, color: t.ink4)),
               const SizedBox(width: 6),
               SizedBox(
