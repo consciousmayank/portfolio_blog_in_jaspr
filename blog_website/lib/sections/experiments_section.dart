@@ -63,7 +63,15 @@ class ExperimentsSection extends StatelessComponent {
         ]),
         div(classes: 'foot', [
           span([.text(c.meta)]),
-          a(href: '#contact', [.text('case-note →')]),
+          if (c.link.isNotEmpty)
+            a(
+              href: c.link,
+              target: Target.blank,
+              attributes: const {'rel': 'noopener noreferrer'},
+              [.text('open ↗')],
+            )
+          else
+            a(href: '#contact', [.text('case-note →')]),
         ]),
       ],
     );

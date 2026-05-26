@@ -1,8 +1,6 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../components/hero_typewriter.dart';
-
 class HeroSection extends StatelessComponent {
   const HeroSection({super.key});
 
@@ -14,7 +12,6 @@ class HeroSection extends StatelessComponent {
           _left(),
           _right(),
         ]),
-        _aiStrip(),
       ]),
     ]);
   }
@@ -49,7 +46,7 @@ class HeroSection extends StatelessComponent {
       ]),
       div(classes: 'hero-cta', [
         a(href: '#contact', classes: 'btn', [.text('Start a conversation →')]),
-        a(href: '#experiments', classes: 'btn ghost', [.text('See the AI lab')]),
+        a(href: '#experiments', classes: 'btn ghost', [.text('View My Lab')]),
       ]),
     ]);
   }
@@ -93,11 +90,4 @@ class HeroSection extends StatelessComponent {
     ]);
   }
 
-  static Component _aiStrip() {
-    return div(classes: 'ai-strip', [
-      span(classes: 'bullet', []),
-      span(classes: 'ai-label', [.text('~/mayank \$ ask me to')]),
-      const HeroTypewriter(),
-    ]);
-  }
 }

@@ -2,6 +2,7 @@ import 'package:jaspr/jaspr.dart';
 
 import '../data/api_client.dart';
 import '../sections/contact_section.dart';
+import '../sections/experiments_section.dart';
 import '../sections/hero_section.dart';
 import '../sections/skills_section.dart';
 import '../sections/timeline_section.dart';
@@ -87,6 +88,7 @@ class _HomePageState extends State<HomePage>
       const HeroSection(),
       TimelineSection(roles: bundle.roles),
       SkillsSection(coreSkills: bundle.coreSkills, lists: bundle.lists),
+      ExperimentsSection(experiments: bundle.experiments),
       WritingSection(posts: posts),
       const ContactSection(),
     ]);

@@ -48,7 +48,15 @@ class ExperimentsScreen extends ConsumerWidget {
               child: _ExperimentCard(
                 card: cards[i],
                 onTap: () => _edit(context, ref, cards[i]),
+                onToggleActive: (next) async {
+                  final api = ref.read(apiClientProvider);
+                  final updated = cards[i]..isActive = next;
+                  await api.updateExperiment(cards[i].id!, updated);
+                  ref.invalidate(_experimentsProvider);
+                },
                 onDelete: () async {
+                  final confirmed = await _confirmDelete(context, cards[i]);
+                  if (!confirmed) return;
                   await ref.read(apiClientProvider).deleteExperiment(cards[i].id!);
                   ref.invalidate(_experimentsProvider);
                 },
@@ -60,14 +68,41 @@ class ExperimentsScreen extends ConsumerWidget {
     );
   }
 
+  Future<bool> _confirmDelete(BuildContext context, ExperimentCard c) async {
+    final r = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete this experiment?'),
+        content: Text(
+          'This permanently removes "${c.title}" (${c.code}) and all of '
+          'its demo lines. This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    return r == true;
+  }
+
   Future<void> _edit(BuildContext context, WidgetRef ref, ExperimentCard? c) async {
     final code = TextEditingController(text: c?.code);
     final status = TextEditingController(text: c?.status);
     final title = TextEditingController(text: c?.title);
     final body = TextEditingController(text: c?.body);
     final meta = TextEditingController(text: c?.meta);
+    final link = TextEditingController(text: c?.link);
     final span = TextEditingController(text: (c?.span ?? 4).toString());
     final demo = List<List<String>>.from(c?.demo ?? const []);
+    var isActive = c?.isActive ?? true;
 
     final ok = await showDialog<bool>(
       context: context,
@@ -91,7 +126,24 @@ class ExperimentsScreen extends ConsumerWidget {
                 TextField(controller: body, decoration: const InputDecoration(labelText: 'BODY'), maxLines: 3),
                 const SizedBox(height: 8),
                 TextField(controller: meta, decoration: const InputDecoration(labelText: 'META')),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: link,
+                  decoration: const InputDecoration(
+                    labelText: 'LINK (optional)',
+                    hintText: 'https://example.com — opens in a new tab',
+                  ),
+                  keyboardType: TextInputType.url,
+                ),
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Active'),
+                  subtitle: const Text('Inactive experiments are hidden from the public site'),
+                  value: isActive,
+                  onChanged: (v) => setS(() => isActive = v),
+                ),
+                const SizedBox(height: 8),
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Eyebrow(label: 'demo lines · line + style'),
@@ -145,6 +197,8 @@ class ExperimentsScreen extends ConsumerWidget {
       title: title.text.trim(), body: body.text, meta: meta.text,
       span: int.tryParse(span.text) ?? 4,
       sortIndex: c?.sortIndex ?? 0,
+      link: link.text.trim(),
+      isActive: isActive,
       demo: demo,
     );
     if (c == null) {
@@ -161,10 +215,12 @@ class _ExperimentCard extends StatelessWidget {
     required this.card,
     required this.onTap,
     required this.onDelete,
+    required this.onToggleActive,
   });
   final ExperimentCard card;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final ValueChanged<bool> onToggleActive;
 
   ChipKind _kindOf(String status) {
     final s = status.toLowerCase();
@@ -178,7 +234,7 @@ class _ExperimentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppTokens.of(context);
     final kind = _kindOf(card.status);
-    return InkWell(
+    final body = InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(6),
       child: Card(
@@ -193,9 +249,23 @@ class _ExperimentCard extends StatelessWidget {
               const Spacer(),
               Text('span ${card.span}',
                   style: AppText.mono(context, size: 10.5, color: t.ink4)),
+              const SizedBox(width: 6),
+              SizedBox(
+                width: 36,
+                height: 24,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Switch(
+                    value: card.isActive,
+                    onChanged: onToggleActive,
+                  ),
+                ),
+              ),
               IconButton(
                 onPressed: onDelete,
-                icon: Icon(Icons.more_horiz, size: 16, color: t.ink3),
+                tooltip: 'Delete',
+                icon: Icon(Icons.delete_outline, size: 18, color: t.ink3),
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 constraints: const BoxConstraints(),
               ),
@@ -238,9 +308,24 @@ class _ExperimentCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (card.link.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Row(children: [
+                Icon(Icons.open_in_new, size: 14, color: t.ink3),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    card.link,
+                    style: AppText.mono(context, size: 11.5, color: t.ink3),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ]),
+            ],
           ]),
         ),
       ),
     );
+    return card.isActive ? body : Opacity(opacity: 0.5, child: body);
   }
 }

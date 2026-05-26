@@ -134,6 +134,8 @@ class ExperimentCard {
     this.span = 4,
     this.sortIndex = 0,
     required this.demo,
+    this.link = '',
+    this.isActive = true,
   });
 
   int? id;
@@ -145,6 +147,8 @@ class ExperimentCard {
   int span;
   int sortIndex;
   List<List<String>> demo;
+  String link;
+  bool isActive;
 
   factory ExperimentCard.fromJson(Map<String, dynamic> j) => ExperimentCard(
         id: j['id'] as int?,
@@ -155,6 +159,8 @@ class ExperimentCard {
         meta: (j['meta'] as String?) ?? '',
         span: (j['span'] as int?) ?? 4,
         sortIndex: (j['sort_index'] as int?) ?? 0,
+        link: (j['link'] as String?) ?? '',
+        isActive: (j['is_active'] as bool?) ?? true,
         demo: ((j['demo'] as List?) ?? const [])
             .map<List<String>>((e) => (e as List).cast<String>())
             .toList(),
@@ -168,6 +174,8 @@ class ExperimentCard {
         'meta': meta,
         'span': span,
         'sort_index': sortIndex,
+        'link': link,
+        'is_active': isActive,
         'demo': demo,
       };
 }
