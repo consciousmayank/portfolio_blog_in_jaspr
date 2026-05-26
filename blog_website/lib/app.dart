@@ -56,6 +56,7 @@ class App extends StatelessComponent {
         nav(classes: 'nav-links', [
           a(href: '/#timeline', [.text('Career')]),
           a(href: '/#skills', [.text('Skills')]),
+          a(href: '/#experiments', [.text('My Lab')]),
           a(href: '/#writing', [.text('My Writings')]),
           a(href: '/#contact', [.text('Contact')]),
           const ThemeToggle(),
