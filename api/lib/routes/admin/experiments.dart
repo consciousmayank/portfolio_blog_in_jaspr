@@ -11,7 +11,7 @@ Router adminExperimentsRoutes(Db db) {
 
   r.get('/', (Request req) async {
     final cards = await db.pool.execute(Sql.named('''
-      SELECT id, code, status, title, body, meta, span, sort_index
+      SELECT id, code, status, title, body, meta, span, sort_index, link, is_active
         FROM experiment_cards ORDER BY sort_index, id
     '''));
     final demos = await db.pool.execute(Sql.named('''
@@ -35,6 +35,8 @@ Router adminExperimentsRoutes(Db db) {
         'meta': m['meta'],
         'span': m['span'],
         'sort_index': m['sort_index'],
+        'link': m['link'],
+        'is_active': m['is_active'],
         'demo': demoByCard[m['id']] ?? const <List<String>>[],
       };
     }).toList();
@@ -47,8 +49,8 @@ Router adminExperimentsRoutes(Db db) {
     return db.pool.runTx<Response>((tx) async {
       final res = await tx.execute(
         Sql.named('''
-          INSERT INTO experiment_cards (code, status, title, body, meta, span, sort_index)
-          VALUES (@c, @s, @t, @b, @m, @sp, @sort) RETURNING id
+          INSERT INTO experiment_cards (code, status, title, body, meta, span, sort_index, link, is_active)
+          VALUES (@c, @s, @t, @b, @m, @sp, @sort, @lk, @ia) RETURNING id
         '''),
         parameters: _params(body),
       );
@@ -67,7 +69,8 @@ Router adminExperimentsRoutes(Db db) {
         Sql.named('''
           UPDATE experiment_cards
              SET code = @c, status = @s, title = @t, body = @b, meta = @m,
-                 span = @sp, sort_index = @sort, updated_at = now()
+                 span = @sp, sort_index = @sort, link = @lk, is_active = @ia,
+                 updated_at = now()
            WHERE id = @id RETURNING id
         '''),
         parameters: {..._params(body), 'id': intId},
@@ -124,6 +127,8 @@ Map<String, dynamic> _params(Map<String, dynamic> j) => {
       'm': (j['meta'] as String?) ?? '',
       'sp': (j['span'] as int?) ?? 4,
       'sort': (j['sort_index'] as int?) ?? 0,
+      'lk': (j['link'] as String?) ?? '',
+      'ia': (j['is_active'] as bool?) ?? true,
     };
 
 Future<Map<String, dynamic>?> _readJson(Request req) async {

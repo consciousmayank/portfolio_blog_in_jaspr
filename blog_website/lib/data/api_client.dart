@@ -113,6 +113,7 @@ class ExperimentCard {
     required this.demo,
     required this.meta,
     this.span = 4,
+    this.link = '',
   });
   final String code;
   final String status;
@@ -121,6 +122,7 @@ class ExperimentCard {
   final List<List<String>> demo;
   final String meta;
   final int span;
+  final String link;
 
   factory ExperimentCard.fromJson(Map<String, dynamic> j) => ExperimentCard(
         code: j['code'] as String,
@@ -129,6 +131,7 @@ class ExperimentCard {
         body: j['body'] as String,
         meta: (j['meta'] as String?) ?? '',
         span: (j['span'] as int?) ?? 4,
+        link: (j['link'] as String?) ?? '',
         demo: ((j['demo'] as List?) ?? const [])
             .map<List<String>>((e) => (e as List).cast<String>())
             .toList(),
@@ -141,6 +144,7 @@ class ExperimentCard {
         'body': body,
         'meta': meta,
         'span': span,
+        'link': link,
         'demo': demo,
       };
 }

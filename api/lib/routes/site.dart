@@ -19,8 +19,10 @@ Router siteRoutes(Db db) {
         FROM core_skills ORDER BY sort_index, id
     '''));
     final cards = await db.pool.execute(Sql.named('''
-      SELECT id, code, status, title, body, meta, span
-        FROM experiment_cards ORDER BY sort_index, id
+      SELECT id, code, status, title, body, meta, span, link
+        FROM experiment_cards
+       WHERE is_active = TRUE
+       ORDER BY sort_index, id
     '''));
     final demos = await db.pool.execute(Sql.named('''
       SELECT card_id, idx, line, style
@@ -49,6 +51,7 @@ Router siteRoutes(Db db) {
         'body': m['body'],
         'meta': m['meta'],
         'span': m['span'],
+        'link': m['link'],
         'demo': demoByCard[m['id']] ?? const <List<String>>[],
       };
     }).toList();
